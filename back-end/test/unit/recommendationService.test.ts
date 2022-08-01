@@ -1,11 +1,11 @@
 import { recommendationRepository } from "../../src/repositories/recommendationRepository.js"
 import { recommendationService } from "../../src/services/recommendationsService.js"
 import { listOfVideos, videoByScore, videoData } from "../factories/videoFactory.js"
-
+import { jest } from "@jest/globals"
 describe("recommendation service", () => {
 
     it('should post',async()=>{
-        jest.spyOn(recommendationRepository, 'findByName').mockImplementationOnce(() => undefined)
+        jest.spyOn(recommendationRepository, 'findByName').mockImplementationOnce(() :any=> undefined)
         jest.spyOn(recommendationRepository, 'create').mockImplementationOnce(():any => {})
         const video=videoData()
         await recommendationService.insert(video)
@@ -38,27 +38,7 @@ describe("recommendation service", () => {
         }
     })
     
-    it('should downvote',async()=>{
-        jest.spyOn(recommendationRepository, 'find').mockImplementationOnce(():any => true)
-        jest.spyOn(recommendationRepository, 'updateScore').mockImplementationOnce(():any => {
-            const video=videoByScore(2)
-            return video
-        })
-        await recommendationService.downvote(1)
-        expect(recommendationRepository.updateScore).toBeCalled()
-        expect(recommendationRepository.remove).not.toBeCalled()
-    })
-    it('should downvote and remove',async()=>{
-        jest.spyOn(recommendationRepository, 'find').mockImplementationOnce(():any => true)
-        jest.spyOn(recommendationRepository, 'updateScore').mockImplementationOnce(():any => {
-            const video=videoByScore(-7)
-            return video
-        })
-        jest.spyOn(recommendationRepository, 'remove').mockImplementationOnce(():any => true)
-        await recommendationService.downvote(1)
-        expect(recommendationRepository.updateScore).toBeCalled()
-        expect(recommendationRepository.remove).toBeCalled()
-    })
+    
     it('should get',async()=>{
         jest.spyOn(recommendationRepository, 'findAll').mockImplementationOnce(():any => {})
         await recommendationService.get()
@@ -88,4 +68,31 @@ describe("recommendation service", () => {
             expect(error.type).toBe("not_found")
         }
     })
+})
+
+describe("recommendation service downvotes", () => {
+
+    it('should downvote',async()=>{
+        jest.spyOn(recommendationRepository, 'find').mockImplementation(():any => true)
+        jest.spyOn(recommendationRepository, 'remove').mockImplementation(():any => {})
+        jest.spyOn(recommendationRepository, 'updateScore').mockImplementation(():any => {
+            const video=videoByScore(2)
+            return video
+        })
+        await recommendationService.downvote(1)
+        expect(recommendationRepository.updateScore).toBeCalled()
+        expect(recommendationRepository.remove).not.toBeCalled()
+    })
+    it('should downvote and remove',async()=>{
+        jest.spyOn(recommendationRepository, 'find').mockImplementationOnce(():any => true)
+        jest.spyOn(recommendationRepository, 'updateScore').mockImplementationOnce(():any => {
+            const video=videoByScore(-7)
+            return video
+        })
+        jest.spyOn(recommendationRepository, 'remove').mockImplementationOnce(():any => true)
+        await recommendationService.downvote(1)
+        expect(recommendationRepository.updateScore).toBeCalled()
+        expect(recommendationRepository.remove).toBeCalled()
+    })
+
 })

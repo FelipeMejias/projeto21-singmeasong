@@ -13,7 +13,7 @@ export function videoByScore(score:number){
         id:Math.random(),
         name:word,
         youtubeLink:'https://www.youtube.com/'+word,
-        score
+        score:score
     }
 }
 
